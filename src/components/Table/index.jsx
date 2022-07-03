@@ -1,5 +1,7 @@
 import React from 'react';
+import Moment from 'react-moment';
 import Section from '../Section/index.jsx';
+import * as styles from './styles.module.scss';
 
 const Table = ({ categories, merchants, transactions }) => {
   console.log('TRANSACTIONS', transactions);
@@ -15,7 +17,7 @@ const Table = ({ categories, merchants, transactions }) => {
     'Amount',
     'GST',
     'Budget',
-    'Receipt (read-only checkbox)',
+    'Receipt',
     'Billable (checkbox)',
   ];
 
@@ -30,17 +32,24 @@ const Table = ({ categories, merchants, transactions }) => {
           </tr>
           {transactions.map((item) => {
             const { status, date, merchant, teamMember, category, amount, budget, receipt, billable } = item;
+            const activeMerchant = merchants.find((m) => m.id === merchant)?.name || 'No merhant found';
+            const activeCategory = categories.find((m) => m.id === category)?.name || 'No category found';
+
             return (
               <tr key={item}>
                 <td>{status}</td>
-                <td>{date}</td>
-                <td>{merchant}</td>
+                <td>
+                  <Moment format="DD MMM YYYY">{date}</Moment>
+                </td>
+                <td>{activeMerchant}</td>
                 <td>{teamMember}</td>
-                <td>{category}</td>
-                <td>{amount}</td>
+                <td>{activeCategory}</td>
+                <td>${amount}</td>
                 <td>{budget}</td>
-                <td>{receipt}</td>
-                <td>{billable}</td>
+                <td className={styles.readOnlyChecked}>
+                  {receipt ? <input type="checkbox" checked /> : <input type="checkbox" />}
+                </td>
+                <td>{billable ? <input type="checkbox" checked /> : <input type="checkbox" />}</td>
               </tr>
             );
           })}
