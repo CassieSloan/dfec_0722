@@ -1,6 +1,6 @@
 import React from 'react';
 import { Heading, Table } from './components';
-import './styles.css';
+import './styles.scss';
 
 const App = ({ categories, merchants, transactions }) => {
   return (
