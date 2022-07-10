@@ -15,7 +15,7 @@ const Heading = (props) => {
         </a>
       </div>
       <div className={styles.imageContainer}>
-        <img src={work} />
+        <img src={work} alt="woman on computer" />
       </div>
     </Section>
   );

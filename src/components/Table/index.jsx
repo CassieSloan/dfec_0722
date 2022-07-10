@@ -35,13 +35,13 @@ const Table = ({ categories, merchants, transactions }) => {
     const formattedCategories = categories.map((cat) => cat.name);
 
     const categoryDropDown = (
-      <>
-        <select className={`${styles.categorySelect} ${styles.blueOpt} `}>
-          {formattedCategories.map((cat) => (
-            <option defaultValue={cat === activeCategory && 'selected'}>{cat}</option>
-          ))}
-        </select>
-      </>
+      <select className={`${styles.categorySelect} ${styles.blueOpt} `}>
+        {formattedCategories.map((cat) => (
+          <option selected={cat === activeCategory && 'selected'} value={activeCategory}>
+            {cat}
+          </option>
+        ))}
+      </select>
     );
 
     const activeStatus = <span className={`${statusClasses[status]} ${styles.status}`}>{status}</span>;
@@ -73,14 +73,23 @@ const Table = ({ categories, merchants, transactions }) => {
       const search = (key) => {
         const filteredTransactions = formattedTransations.filter((item) => {
           const value = item[key];
-          const type = typeof value;
           // find value regardless of casing or datatype
-          const formattedValue = type === 'string' ? value.toLowerCase() : value.toSt;
+          const typeFormatter = (v) => {
+            const type = typeof v;
+
+            if (type === 'string') {
+              return v.toLowerCase();
+            }
+            if (type === 'object') {
+              return v.props.children.find((val) => val.props.selected).props.value;
+            }
+            return v.toSt;
+          };
+
+          const formattedValue = typeFormatter(value);
           const match = formattedValue?.includes(searchTerm);
-          if (match) {
-            return item;
-          }
-          return null;
+
+          return match ? item : null;
         });
         return filteredTransactions;
       };
@@ -95,11 +104,11 @@ const Table = ({ categories, merchants, transactions }) => {
         ...search('gst'),
       ];
 
-      // stripped results
+      // strip duplicate matches
       const formatedResults = [...new Set(allResults)];
       // limit re-renders for performance
-      setSearchValue(searchTerm);
       setTimeout(setResultData(formatedResults), 150);
+      setSearchValue(searchTerm);
     };
 
     return (
@@ -120,38 +129,41 @@ const Table = ({ categories, merchants, transactions }) => {
   return (
     <Section className={styles.section} containerClassName={styles.container}>
       <SearchBar />
-      <table className={styles.table}>
-        <tbody>
-          <tr>
-            {columns.map((item) => {
-              return <th key={item}>{item}</th>;
+      {dataToUse?.length !== 0 && (
+        <table className={styles.table}>
+          <tbody>
+            <tr>
+              {columns.map((item) => {
+                return <th key={item}>{item}</th>;
+              })}
+            </tr>
+            {dataToUse.map((item) => {
+              const { status, date, merchant, teamMember, category, amount, gst, budget, receipt, billable } = item;
+              return (
+                <OnVisible key={item} as="tr" className={styles.tableRow} visibleClassName={styles.visibleTableRow}>
+                  <td>{status}</td>
+                  <td>
+                    <Moment format="DD MMM YYYY">{date}</Moment>
+                  </td>
+                  <td>{merchant}</td>
+                  <td>{teamMember}</td>
+                  <td>{category}</td>
+                  <td>${amount}</td>
+                  <td>${gst}</td>
+                  <td>{budget}</td>
+                  <td className={styles.readOnlyChecked}>
+                    {receipt ? <input type="checkbox" checked readOnlyChecked /> : <input type="checkbox" />}
+                  </td>
+                  <td>{billable ? <input type="checkbox" defaultChecked /> : <input type="checkbox" />}</td>
+                </OnVisible>
+              );
             })}
-          </tr>
-          {dataToUse.map((item) => {
-            const { status, date, merchant, teamMember, category, amount, gst, budget, receipt, billable } = item;
-
-            return (
-              <OnVisible key={item} as="tr" className={styles.tableRow} visibleClassName={styles.visibleTableRow}>
-                <td>{status}</td>
-                <td>
-                  <Moment format="DD MMM YYYY">{date}</Moment>
-                </td>
-                <td>{merchant}</td>
-                <td>{teamMember}</td>
-                <td>{category}</td>
-                <td>${amount}</td>
-                <td>${gst}</td>
-                <td>{budget}</td>
-                <td className={styles.readOnlyChecked}>
-                  {receipt ? <input type="checkbox" checked readOnlyChecked /> : <input type="checkbox" />}
-                </td>
-                <td>{billable ? <input type="checkbox" defaultChecked /> : <input type="checkbox" />}</td>
-              </OnVisible>
-            );
-          })}
-        </tbody>
-      </table>
-      {dataToUse?.length === 0 && <span>{`No matching transations for ${searchValue}`}</span>}
+          </tbody>
+        </table>
+      )}
+      {dataToUse?.length === 0 && (
+        <span className={styles.downState}>{`No matching transations for ${searchValue}`}</span>
+      )}
     </Section>
   );
 };

@@ -8,6 +8,10 @@ $blue: rgb(79, 215, 243);
   grid-template-columns: 1fr 1fr;
   gap: 72px;
   align-items: center;
+  @media only screen and (max-width: 600px) {
+    grid-template-columns: 1fr;
+  }
+
 }
 
 .title, .tagline {
