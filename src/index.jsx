@@ -5,6 +5,7 @@ import * as serviceWorker from './serviceWorker';
 import categories from './data/categories.json';
 import merchants from './data/merchants.json';
 import transactions from './data/transactions.json';
+import './styles.scss';
 
 ReactDOM.render(
   <App categories={categories} merchants={merchants} transactions={transactions} />,
