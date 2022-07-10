@@ -10,6 +10,9 @@
     transition: bottom 0.6s ease, opacity 0.8s ease;
   }
 }
+
+$purple: rgb(127, 80, 230);
+
 .container {
   overflow: scroll;
 }
@@ -21,16 +24,24 @@
   }
   tr {
     text-align: left;
+    td {
+      &:first-of-type {
+        padding-left: 0;
+      }
+      &:nth-of-type(5) {
+        padding: 4px 0;
+      }
+    }
   }
   th, .status, td {
     padding: 4px 12px;
     white-space: nowrap;
   }
-  // td {
-  //   padding: 4px 12px;
-  //   white-space: nowrap;
-  //
-  // }
+  th {
+    background: rgba($purple, 0.2);
+    padding: 8px;
+    border-radius: 2px;
+  }
   .status {
     display: block;
     border-radius: 4px;
