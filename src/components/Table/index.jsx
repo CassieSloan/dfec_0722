@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Fragment } from 'react';
 import Moment from 'react-moment';
 import Section from '../Section/index.jsx';
 import OnVisible from '../OnVisible/index.jsx';
@@ -28,24 +28,32 @@ const Table = ({ categories, merchants, transactions }) => {
   };
 
   // format table data
-  const formattedTransations = transactions.map((item) => {
+  const formattedTransations = transactions?.map((item) => {
+    // get values
     const { status, date, merchant, team_member: teamMember, category, amount, gst, budget, receipt, billable } = item;
-    const activeMerchant = merchants.find((m) => m.id === merchant)?.name || 'No merhant found';
-    const activeCategory = categories.find((m) => m.id === category)?.name || 'No category found';
+    // format applicable items
+    const activeMerchant = merchants?.find((m) => m.id === merchant)?.name || 'No merhant found';
+    const activeCategory = categories?.find((m) => m.id === category)?.name || 'No category found';
     const formattedCategories = categories.map((cat) => cat.name);
 
     const categoryDropDown = (
       <select className={`${styles.categorySelect} ${styles.blueOpt} `}>
-        {formattedCategories.map((cat) => (
-          <option selected={cat === activeCategory && 'selected'} value={activeCategory}>
-            {cat}
-          </option>
-        ))}
+        {formattedCategories.map((cat, index) => {
+          return (
+            <option
+              selected={cat === activeCategory && 'selected'}
+              value={activeCategory}
+              key={`option ${index}: ${cat}`}
+            >
+              {cat}
+            </option>
+          );
+        })}
       </select>
     );
 
     const activeStatus = <span className={`${statusClasses[status]} ${styles.status}`}>{status}</span>;
-
+    // return formatted data to use
     return {
       status: activeStatus,
       date,
@@ -65,9 +73,10 @@ const Table = ({ categories, merchants, transactions }) => {
     setResultData(formattedTransations);
   }, []);
 
-  // search
+  // search comp
   const SearchBar = () => {
     const handleSearchChange = (e) => {
+      // search value
       const searchTerm = e.target.value.toLowerCase() || e.target.value;
 
       const search = (key) => {
@@ -83,18 +92,22 @@ const Table = ({ categories, merchants, transactions }) => {
             if (type === 'object') {
               return v.props.children.find((val) => val.props.selected).props.value;
             }
-            return v.toSt;
+            if (type === 'number') {
+              return v.toString();
+            }
+            return v.toString();
           };
 
           const formattedValue = typeFormatter(value);
           const match = formattedValue?.includes(searchTerm);
 
+          // return matching items
           return match ? item : null;
         });
         return filteredTransactions;
       };
 
-      // raw results
+      // populate results
       const allResults = [
         ...search('merchant'),
         ...search('teamMember'),
@@ -111,59 +124,70 @@ const Table = ({ categories, merchants, transactions }) => {
       setSearchValue(searchTerm);
     };
 
+    // search ui
     return (
-      <div>
-        <input autoFocus type="text" name="search" value={searchValue || ''} onChange={handleSearchChange} />
+      <div className={styles.searchBar}>
+        <input
+          className={styles.searchInput}
+          autoFocus
+          type="text"
+          name="search"
+          value={searchValue || ''}
+          onChange={handleSearchChange}
+          placeholder="Search"
+        />
       </div>
     );
   };
-
-  // re-render after value in input is updated
-  // add debounce to reduce num of re-renders
-
-  // paginate allResults
-  // on visible
 
   const dataToUse = resultData || formattedTransations;
 
   return (
     <Section className={styles.section} containerClassName={styles.container}>
       <SearchBar />
-      {dataToUse?.length !== 0 && (
-        <table className={styles.table}>
-          <tbody>
-            <tr>
-              {columns.map((item) => {
-                return <th key={item}>{item}</th>;
+      <div className={styles.tableContainer}>
+        {dataToUse?.length !== 0 && (
+          <table className={styles.table}>
+            <tbody>
+              <tr>
+                {columns.map((item) => {
+                  return <th key={item}>{item}</th>;
+                })}
+              </tr>
+              {dataToUse.map((item, index) => {
+                const { status, date, merchant, teamMember, category, amount, gst, budget, receipt, billable } = item;
+                return (
+                  <Fragment key={`row item: ${index}`}>
+                    <OnVisible as="tr" className={styles.tableRow} visibleClassName={styles.visibleTableRow}>
+                      <td>{status}</td>
+                      <td>
+                        <Moment format="DD MMM YYYY">{date}</Moment>
+                      </td>
+                      <td>{merchant}</td>
+                      <td>{teamMember}</td>
+                      <td>{category}</td>
+                      <td>${amount}</td>
+                      <td>${gst}</td>
+                      <td>{budget}</td>
+                      <td className={styles.readOnlyChecked}>
+                        {receipt ? (
+                          <input type="checkbox" defaultChecked readonlychecked="true" />
+                        ) : (
+                          <input type="checkbox" />
+                        )}
+                      </td>
+                      <td>{billable ? <input type="checkbox" defaultChecked /> : <input type="checkbox" />}</td>
+                    </OnVisible>
+                  </Fragment>
+                );
               })}
-            </tr>
-            {dataToUse.map((item) => {
-              const { status, date, merchant, teamMember, category, amount, gst, budget, receipt, billable } = item;
-              return (
-                <OnVisible key={item} as="tr" className={styles.tableRow} visibleClassName={styles.visibleTableRow}>
-                  <td>{status}</td>
-                  <td>
-                    <Moment format="DD MMM YYYY">{date}</Moment>
-                  </td>
-                  <td>{merchant}</td>
-                  <td>{teamMember}</td>
-                  <td>{category}</td>
-                  <td>${amount}</td>
-                  <td>${gst}</td>
-                  <td>{budget}</td>
-                  <td className={styles.readOnlyChecked}>
-                    {receipt ? <input type="checkbox" checked readOnlyChecked /> : <input type="checkbox" />}
-                  </td>
-                  <td>{billable ? <input type="checkbox" defaultChecked /> : <input type="checkbox" />}</td>
-                </OnVisible>
-              );
-            })}
-          </tbody>
-        </table>
-      )}
-      {dataToUse?.length === 0 && (
-        <span className={styles.downState}>{`No matching transations for ${searchValue}`}</span>
-      )}
+            </tbody>
+          </table>
+        )}
+        {dataToUse?.length === 0 && (
+          <span className={styles.downState}>{`No matching transations for '${searchValue}'`}</span>
+        )}
+      </div>
     </Section>
   );
 };

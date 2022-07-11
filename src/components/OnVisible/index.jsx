@@ -30,7 +30,7 @@ const OnVisible = ({
       triggerOnce={triggerOnce === undefined || triggerOnce !== false}
       onClick={onClick}
       onChange={onChangeHandler}
-      threshold={threshold || 0.4}
+      threshold={threshold || 0.1}
       dangerouslySetInnerHTML={dangerouslySetInnerHTML}
     >
       {children}
