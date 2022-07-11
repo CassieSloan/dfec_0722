@@ -70,8 +70,7 @@ const Table = ({ categories, merchants, transactions }) => {
 
   // init table data on mount
   useEffect(() => {
-    const cloneFormattedTransactions = [...formattedTransations];
-    setResultData(cloneFormattedTransactions);
+    setResultData(formattedTransations);
   }, []);
 
   // search comp
