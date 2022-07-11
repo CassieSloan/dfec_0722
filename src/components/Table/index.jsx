@@ -71,6 +71,7 @@ const Table = ({ categories, merchants, transactions }) => {
   // init table data on mount
   useEffect(() => {
     setResultData(formattedTransations);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // search comp
