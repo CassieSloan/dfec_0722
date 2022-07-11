@@ -5,7 +5,7 @@ import OnVisible from '../OnVisible/index.jsx';
 import * as styles from './styles.module.scss';
 
 const Table = ({ categories, merchants, transactions }) => {
-  const [resultData, setResultData] = useState(null);
+  const [resultData, setResultData] = useState([]);
   const [searchValue, setSearchValue] = useState(null);
 
   const columns = [
@@ -70,7 +70,8 @@ const Table = ({ categories, merchants, transactions }) => {
 
   // init table data on mount
   useEffect(() => {
-    setResultData(formattedTransations);
+    const cloneFormattedTransactions = [...formattedTransations];
+    setResultData(cloneFormattedTransactions);
   }, []);
 
   // search comp
